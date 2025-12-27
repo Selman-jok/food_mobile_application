@@ -1,41 +1,339 @@
-const Food = require('../models/Food');
+// const Food = require('../models/Food');
 
-// @desc    Get all foods
-// @route   GET /api/foods
-// @access  Public
+// // @desc    Get all foods
+// // @route   GET /api/foods
+// // @access  Public
+// const getAllFoods = async (req, res) => {
+//     try {
+//         const { category, popular, special, search } = req.query;
+        
+//         let query = {};
+        
+//         // Filter by category
+//         if (category) {
+//             query.category = category;
+//         }
+        
+//         // Filter popular foods
+//         if (popular === 'true') {
+//             query.isPopular = true;
+//         }
+        
+//         // Filter special offers
+//         if (special === 'true') {
+//             query.isSpecialOffer = true;
+//         }
+        
+//         // Search by name
+//         if (search) {
+//             query.name = { $regex: search, $options: 'i' };
+//         }
+        
+//         const foods = await Food.find(query);
+        
+//         // Calculate discounted price for special offers
+//         const foodsWithDiscount = foods.map(food => {
+//             const foodObj = food.toObject();
+//             if (food.isSpecialOffer && food.originalPrice && food.discountPercent) {
+//                 foodObj.finalPrice = food.discountedPrice;
+//             } else {
+//                 foodObj.finalPrice = food.price;
+//             }
+//             return foodObj;
+//         });
+        
+//         res.json({
+//             success: true,
+//             count: foods.length,
+//             data: foodsWithDiscount
+//         });
+//     } catch (error) {
+//         res.status(500).json({
+//             success: false,
+//             message: error.message
+//         });
+//     }
+// };
+
+// // @desc    Get single food item
+// // @route   GET /api/foods/:id
+// // @access  Public
+// const getFoodById = async (req, res) => {
+//     try {
+//         const food = await Food.findById(req.params.id);
+        
+//         if (!food) {
+//             return res.status(404).json({
+//                 success: false,
+//                 message: 'Food item not found'
+//             });
+//         }
+        
+//         const foodObj = food.toObject();
+//         if (food.isSpecialOffer && food.originalPrice && food.discountPercent) {
+//             foodObj.finalPrice = food.discountedPrice;
+//             foodObj.youSave = food.originalPrice - food.discountedPrice;
+//         } else {
+//             foodObj.finalPrice = food.price;
+//         }
+        
+//         res.json({
+//             success: true,
+//             data: foodObj
+//         });
+//     } catch (error) {
+//         res.status(500).json({
+//             success: false,
+//             message: error.message
+//         });
+//     }
+// };
+
+// // @desc    Create food item
+// // @route   POST /api/foods
+// // @access  Private/Admin
+// const createFood = async (req, res) => {
+//     try {
+//         const food = new Food(req.body);
+//         await food.save();
+        
+//         res.status(201).json({
+//             success: true,
+//             data: food
+//         });
+//     } catch (error) {
+//         res.status(400).json({
+//             success: false,
+//             message: error.message
+//         });
+//     }
+// };
+
+// // @desc    Update food item
+// // @route   PUT /api/foods/:id
+// // @access  Private/Admin
+// const updateFood = async (req, res) => {
+//     try {
+//         const food = await Food.findByIdAndUpdate(
+//             req.params.id,
+//             req.body,
+//             { new: true, runValidators: true }
+//         );
+        
+//         if (!food) {
+//             return res.status(404).json({
+//                 success: false,
+//                 message: 'Food item not found'
+//             });
+//         }
+        
+//         res.json({
+//             success: true,
+//             data: food
+//         });
+//     } catch (error) {
+//         res.status(400).json({
+//             success: false,
+//             message: error.message
+//         });
+//     }
+// };
+
+// // @desc    Delete food item
+// // @route   DELETE /api/foods/:id
+// // @access  Private/Admin
+// const deleteFood = async (req, res) => {
+//     try {
+//         const food = await Food.findByIdAndDelete(req.params.id);
+        
+//         if (!food) {
+//             return res.status(404).json({
+//                 success: false,
+//                 message: 'Food item not found'
+//             });
+//         }
+        
+//         res.json({
+//             success: true,
+//             message: 'Food item deleted successfully'
+//         });
+//     } catch (error) {
+//         res.status(500).json({
+//             success: false,
+//             message: error.message
+//         });
+//     }
+// };
+
+// // @desc    Add review to food item
+// // @route   POST /api/foods/:id/reviews
+// // @access  Public
+// const addReview = async (req, res) => {
+//     try {
+//         const { user, rating, comment } = req.body;
+        
+//         const food = await Food.findById(req.params.id);
+        
+//         if (!food) {
+//             return res.status(404).json({
+//                 success: false,
+//                 message: 'Food item not found'
+//             });
+//         }
+        
+//         const review = {
+//             user,
+//             rating,
+//             comment
+//         };
+        
+//         food.reviews.push(review);
+//         food.totalReviews = food.reviews.length;
+//         food.rating = food.calculateAverageRating();
+        
+//         await food.save();
+        
+//         res.status(201).json({
+//             success: true,
+//             data: food.reviews[food.reviews.length - 1]
+//         });
+//     } catch (error) {
+//         res.status(400).json({
+//             success: false,
+//             message: error.message
+//         });
+//     }
+// };
+
+// // @desc    Get food by category
+// // @route   GET /api/foods/category/:category
+// // @access  Public
+// const getFoodsByCategory = async (req, res) => {
+//     try {
+//         const foods = await Food.find({ 
+//             category: req.params.category,
+//             available: true 
+//         });
+        
+//         res.json({
+//             success: true,
+//             count: foods.length,
+//             data: foods
+//         });
+//     } catch (error) {
+//         res.status(500).json({
+//             success: false,
+//             message: error.message
+//         });
+//     }
+// };
+
+// // @desc    Get popular foods
+// // @route   GET /api/foods/popular
+// // @access  Public
+// const getPopularFoods = async (req, res) => {
+//     try {
+//         const foods = await Food.find({ 
+//             isPopular: true,
+//             available: true 
+//         }).sort({ rating: -1 }).limit(10);
+        
+//         res.json({
+//             success: true,
+//             count: foods.length,
+//             data: foods
+//         });
+//     } catch (error) {
+//         res.status(500).json({
+//             success: false,
+//             message: error.message
+//         });
+//     }
+// };
+
+// // @desc    Get special offer foods
+// // @route   GET /api/foods/special-offers
+// // @access  Public
+// const getSpecialOffers = async (req, res) => {
+//     try {
+//         const foods = await Food.find({ 
+//             isSpecialOffer: true,
+//             available: true 
+//         });
+        
+//         const foodsWithDiscount = foods.map(food => {
+//             const foodObj = food.toObject();
+//             foodObj.finalPrice = food.discountedPrice;
+//             foodObj.youSave = food.originalPrice - food.discountedPrice;
+//             return foodObj;
+//         });
+        
+//         res.json({
+//             success: true,
+//             count: foods.length,
+//             data: foodsWithDiscount
+//         });
+//     } catch (error) {
+//         res.status(500).json({
+//             success: false,
+//             message: error.message
+//         });
+//     }
+// };
+
+// module.exports = {
+//     getAllFoods,
+//     getFoodById,
+//     createFood,
+//     updateFood,
+//     deleteFood,
+//     addReview,
+//     getFoodsByCategory,
+//     getPopularFoods,
+//     getSpecialOffers
+// };
+// server/controllers/foodController.js
+const FoodFirebase = require('../models/FoodFirebase');
+
+// Get all foods
 const getAllFoods = async (req, res) => {
     try {
         const { category, popular, special, search } = req.query;
         
-        let query = {};
+        let filters = {};
         
         // Filter by category
         if (category) {
-            query.category = category;
+            filters.category = category;
         }
         
         // Filter popular foods
         if (popular === 'true') {
-            query.isPopular = true;
+            filters.isPopular = true;
         }
         
         // Filter special offers
         if (special === 'true') {
-            query.isSpecialOffer = true;
+            filters.isSpecialOffer = true;
         }
         
-        // Search by name
+        const foods = await FoodFirebase.findAll(filters);
+        
+        // Search by name (client-side filtering for now)
+        let filteredFoods = foods;
         if (search) {
-            query.name = { $regex: search, $options: 'i' };
+            const searchLower = search.toLowerCase();
+            filteredFoods = foods.filter(food => 
+                food.name.toLowerCase().includes(searchLower)
+            );
         }
-        
-        const foods = await Food.find(query);
         
         // Calculate discounted price for special offers
-        const foodsWithDiscount = foods.map(food => {
-            const foodObj = food.toObject();
+        const foodsWithDiscount = filteredFoods.map(food => {
+            const foodObj = { ...food };
             if (food.isSpecialOffer && food.originalPrice && food.discountPercent) {
                 foodObj.finalPrice = food.discountedPrice;
+                foodObj.youSave = food.originalPrice - food.discountedPrice;
             } else {
                 foodObj.finalPrice = food.price;
             }
@@ -44,7 +342,7 @@ const getAllFoods = async (req, res) => {
         
         res.json({
             success: true,
-            count: foods.length,
+            count: foodsWithDiscount.length,
             data: foodsWithDiscount
         });
     } catch (error) {
@@ -55,12 +353,10 @@ const getAllFoods = async (req, res) => {
     }
 };
 
-// @desc    Get single food item
-// @route   GET /api/foods/:id
-// @access  Public
+// Get single food item
 const getFoodById = async (req, res) => {
     try {
-        const food = await Food.findById(req.params.id);
+        const food = await FoodFirebase.findById(req.params.id);
         
         if (!food) {
             return res.status(404).json({
@@ -69,7 +365,7 @@ const getFoodById = async (req, res) => {
             });
         }
         
-        const foodObj = food.toObject();
+        const foodObj = { ...food };
         if (food.isSpecialOffer && food.originalPrice && food.discountPercent) {
             foodObj.finalPrice = food.discountedPrice;
             foodObj.youSave = food.originalPrice - food.discountedPrice;
@@ -89,12 +385,10 @@ const getFoodById = async (req, res) => {
     }
 };
 
-// @desc    Create food item
-// @route   POST /api/foods
-// @access  Private/Admin
+// Create food item
 const createFood = async (req, res) => {
     try {
-        const food = new Food(req.body);
+        const food = new FoodFirebase(req.body);
         await food.save();
         
         res.status(201).json({
@@ -109,16 +403,10 @@ const createFood = async (req, res) => {
     }
 };
 
-// @desc    Update food item
-// @route   PUT /api/foods/:id
-// @access  Private/Admin
+// Update food item
 const updateFood = async (req, res) => {
     try {
-        const food = await Food.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            { new: true, runValidators: true }
-        );
+        const food = await FoodFirebase.findById(req.params.id);
         
         if (!food) {
             return res.status(404).json({
@@ -126,6 +414,10 @@ const updateFood = async (req, res) => {
                 message: 'Food item not found'
             });
         }
+        
+        // Update properties
+        Object.assign(food, req.body);
+        await food.save();
         
         res.json({
             success: true,
@@ -139,12 +431,10 @@ const updateFood = async (req, res) => {
     }
 };
 
-// @desc    Delete food item
-// @route   DELETE /api/foods/:id
-// @access  Private/Admin
+// Delete food item
 const deleteFood = async (req, res) => {
     try {
-        const food = await Food.findByIdAndDelete(req.params.id);
+        const food = await FoodFirebase.findById(req.params.id);
         
         if (!food) {
             return res.status(404).json({
@@ -152,6 +442,8 @@ const deleteFood = async (req, res) => {
                 message: 'Food item not found'
             });
         }
+        
+        await food.delete();
         
         res.json({
             success: true,
@@ -165,14 +457,12 @@ const deleteFood = async (req, res) => {
     }
 };
 
-// @desc    Add review to food item
-// @route   POST /api/foods/:id/reviews
-// @access  Public
+// Add review to food item
 const addReview = async (req, res) => {
     try {
         const { user, rating, comment } = req.body;
         
-        const food = await Food.findById(req.params.id);
+        const food = await FoodFirebase.findById(req.params.id);
         
         if (!food) {
             return res.status(404).json({
@@ -183,13 +473,18 @@ const addReview = async (req, res) => {
         
         const review = {
             user,
-            rating,
+            rating: parseInt(rating),
             comment
         };
         
         food.reviews.push(review);
         food.totalReviews = food.reviews.length;
-        food.rating = food.calculateAverageRating();
+        
+        // Calculate average rating
+        if (food.reviews.length > 0) {
+            const sum = food.reviews.reduce((acc, review) => acc + review.rating, 0);
+            food.rating = parseFloat((sum / food.reviews.length).toFixed(1));
+        }
         
         await food.save();
         
@@ -205,14 +500,11 @@ const addReview = async (req, res) => {
     }
 };
 
-// @desc    Get food by category
-// @route   GET /api/foods/category/:category
-// @access  Public
+// Get food by category
 const getFoodsByCategory = async (req, res) => {
     try {
-        const foods = await Food.find({ 
-            category: req.params.category,
-            available: true 
+        const foods = await FoodFirebase.findAll({ 
+            category: req.params.category 
         });
         
         res.json({
@@ -228,20 +520,20 @@ const getFoodsByCategory = async (req, res) => {
     }
 };
 
-// @desc    Get popular foods
-// @route   GET /api/foods/popular
-// @access  Public
+// Get popular foods
 const getPopularFoods = async (req, res) => {
     try {
-        const foods = await Food.find({ 
-            isPopular: true,
-            available: true 
-        }).sort({ rating: -1 }).limit(10);
+        const foods = await FoodFirebase.findAll({ isPopular: true });
+        
+        // Sort by rating and limit to 10
+        const sortedFoods = foods
+            .sort((a, b) => b.rating - a.rating)
+            .slice(0, 10);
         
         res.json({
             success: true,
-            count: foods.length,
-            data: foods
+            count: sortedFoods.length,
+            data: sortedFoods
         });
     } catch (error) {
         res.status(500).json({
@@ -251,18 +543,13 @@ const getPopularFoods = async (req, res) => {
     }
 };
 
-// @desc    Get special offer foods
-// @route   GET /api/foods/special-offers
-// @access  Public
+// Get special offer foods
 const getSpecialOffers = async (req, res) => {
     try {
-        const foods = await Food.find({ 
-            isSpecialOffer: true,
-            available: true 
-        });
+        const foods = await FoodFirebase.findAll({ isSpecialOffer: true });
         
         const foodsWithDiscount = foods.map(food => {
-            const foodObj = food.toObject();
+            const foodObj = { ...food };
             foodObj.finalPrice = food.discountedPrice;
             foodObj.youSave = food.originalPrice - food.discountedPrice;
             return foodObj;

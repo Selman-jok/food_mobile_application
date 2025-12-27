@@ -136,151 +136,61 @@
 //   };
 // };
 
-// // FORGOT PASSWORD
-// // exports.forgotPassword = catchAsync(async (req, res, next) => {
-// //   // Get user based on email
-// //   const user = await User.findOne({ email: req.body.email });
-// //   if (!user) {
-// //     return next(new AppError('There is no user with that email address.', 404));
-// //   }
+// // FORGOT PASSWORD - FIXED VERSION
+// exports.forgotPassword = catchAsync(async (req, res, next) => {
+//   // Get user based on email
+//   const user = await User.findOne({ email: req.body.email });
+//   if (!user) {
+//     return next(new AppError('There is no user with that email address.', 404));
+//   }
   
-// //   // Generate reset token
-// //   const resetToken = user.createPasswordResetToken();
-// //   await user.save({ validateBeforeSave: false });
+//   // Generate reset token
+//   const resetToken = user.createPasswordResetToken();
+//   await user.save({ validateBeforeSave: false });
   
-// //   // Create reset URL
-// //   const resetURL = `${req.protocol}://${req.get('host')}/api/users/reset-password/${resetToken}`;
-  
-// //   // Create message
-// //   const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}\nIf you didn't forget your password, please ignore this email.`;
-  
-// //   try {
-// //     await sendEmail({
-// //       email: user.email,
-// //       subject: 'Your password reset token (valid for 10 minutes)',
-// //       message
-// //     });
+//   // For development/testing, just return the token
+//   if (process.env.NODE_ENV === 'development' || !process.env.EMAIL_HOST) {
+//     console.log('🔑 Password reset token (for testing):', resetToken);
     
-// //     res.status(200).json({
-// //       status: 'success',
-// //       message: 'Password reset token sent to email'
-// //     });
-// //   } catch (err) {
-// //     user.passwordResetToken = undefined;
-// //     user.passwordResetExpires = undefined;
-// //     await user.save({ validateBeforeSave: false });
+//     res.status(200).json({
+//       status: 'success',
+//       message: 'Password reset token generated',
+//       token: resetToken, // Send token in response for testing
+//       resetURL: `http://localhost:3000/reset-password/${resetToken}`,
+//       note: 'In production, this token would be sent via email.'
+//     });
+//     return;
+//   }
+  
+//   // For production: Create reset URL and send email
+//   const resetURL = `${req.protocol}://${req.get('host')}/api/users/reset-password/${resetToken}`;
+  
+//   // Alternative: Use your frontend URL
+//   // const resetURL = `http://localhost:3000/reset-password/${resetToken}`;
+  
+//   const message = `Forgot your password? Submit a PATCH request with your new password and confirmPassword to: ${resetURL}\nIf you didn't forget your password, please ignore this email.`;
+  
+//   try {
+//     await sendEmail({
+//       email: user.email,
+//       subject: 'Your password reset token (valid for 10 minutes)',
+//       message
+//     });
     
-// //     return next(new AppError('There was an error sending the email. Try again later.', 500));
-// //   }
-// // });
+//     res.status(200).json({
+//       status: 'success',
+//       message: 'Password reset token sent to email'
+//     });
+//   } catch (err) {
+//     user.passwordResetToken = undefined;
+//     user.passwordResetExpires = undefined;
+//     await user.save({ validateBeforeSave: false });
+    
+//     return next(new AppError('There was an error sending the email. Try again later.', 500));
+//   }
+// });
 
-// exports.resetPassword = catchAsync(async (req, res, next) => {
-//   // Get user based on token
-//   const hashedToken = crypto
-//     .createHash('sha256')
-//     .update(req.params.token)
-//     .digest('hex');
-  
-//   const user = await User.findOne({
-//     passwordResetToken: hashedToken,
-//     passwordResetExpires: { $gt: Date.now() }
-//   });
-  
-//   if (!user) {
-//     return next(new AppError('Token is invalid or has expired', 400));
-//   }
-  
-//   // Set new password
-//   user.password = req.body.password;
-//   user.confirmPassword = req.body.confirmPassword;
-//   user.passwordResetToken = undefined;
-//   user.passwordResetExpires = undefined;
-  
-//   // Save the user with new password
-//   await user.save();
-  
-//   // Log the user in (send new token)
-//   createSendToken(user, 200, res);
-// });
-// // exports.forgotPassword = catchAsync(async (req, res, next) => {
-// //   // Get user based on email
-// //   const user = await User.findOne({ email: req.body.email });
-// //   if (!user) {
-// //     return next(new AppError('There is no user with that email address.', 404));
-// //   }
-  
-// //   // Generate reset token
-// //   const resetToken = user.createPasswordResetToken();
-// //   await user.save({ validateBeforeSave: false });
-  
-// //   // For development/testing, just return the token
-// //   if (process.env.NODE_ENV === 'development' || !process.env.EMAIL_HOST) {
-// //     console.log('🔑 Password reset token (for testing):', resetToken);
-    
-// //     res.status(200).json({
-// //       status: 'success',
-// //       message: 'Password reset token generated',
-// //       token: resetToken, // Send token in response for testing
-// //       resetURL: `http://localhost:3000/reset-password/${resetToken}`, // Your frontend URL
-// //       note: 'In production, this token would be sent via email.'
-// //     });
-// //     return;
-// //   }
-  
-// //   // For production: Create reset URL and send email
-// //   const resetURL = `${req.protocol}://${req.get('host')}/api/users/reset-password/${resetToken}`;
-  
-// //   // Alternative: Use your frontend URL
-// //   // const resetURL = `http://localhost:3000/reset-password/${resetToken}`;
-  
-// //   const message = `Forgot your password? Submit a PATCH request with your new password and confirmPassword to: ${resetURL}\nIf you didn't forget your password, please ignore this email.`;
-  
-// //   try {
-// //     await sendEmail({
-// //       email: user.email,
-// //       subject: 'Your password reset token (valid for 10 minutes)',
-// //       message
-// //     });
-    
-// //     res.status(200).json({
-// //       status: 'success',
-// //       message: 'Password reset token sent to email'
-// //     });
-// //   } catch (err) {
-// //     user.passwordResetToken = undefined;
-// //     user.passwordResetExpires = undefined;
-// //     await user.save({ validateBeforeSave: false });
-    
-// //     return next(new AppError('There was an error sending the email. Try again later.', 500));
-// //   }
-// // });
 // // RESET PASSWORD
-// // exports.resetPassword = catchAsync(async (req, res, next) => {
-// //   // Get user based on token
-// //   const hashedToken = crypto
-// //     .createHash('sha256')
-// //     .update(req.params.token)
-// //     .digest('hex');
-  
-// //   const user = await User.findOne({
-// //     passwordResetToken: hashedToken,
-// //     passwordResetExpires: { $gt: Date.now() }
-// //   });
-  
-// //   if (!user) {
-// //     return next(new AppError('Token is invalid or has expired', 400));
-// //   }
-  
-// //   // Set new password
-// //   user.password = req.body.password;
-// //   user.confirmPassword = req.body.confirmPassword;
-// //   user.passwordResetToken = undefined;
-// //   user.passwordResetExpires = undefined;
-// //   await user.save();
-  
-// //   // Log the user in
-// //   createSendToken(user, 200, res);
-// // });
 // exports.resetPassword = catchAsync(async (req, res, next) => {
 //   // Get user based on token
 //   const hashedToken = crypto
@@ -309,6 +219,7 @@
 //   // Log the user in (send new token)
 //   createSendToken(user, 200, res);
 // });
+
 // // UPDATE PASSWORD
 // exports.updatePassword = catchAsync(async (req, res, next) => {
 //   // Get user from collection
@@ -327,11 +238,11 @@
 //   // Log user in, send JWT
 //   createSendToken(user, 200, res);
 // });
-
+// server/controllers/authController.js
 const crypto = require('crypto');
 const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const UserFirebase = require('../models/UserFirebase'); // Firebase model
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const sendEmail = require('../utils/email');
@@ -345,7 +256,7 @@ const signToken = (id) => {
 
 // Helper function to send token in response
 const createSendToken = (user, statusCode, res) => {
-  const token = signToken(user._id);
+  const token = signToken(user.id);
   
   // Cookie options
   const cookieOptions = {
@@ -376,7 +287,20 @@ exports.signup = catchAsync(async (req, res, next) => {
     phoneNumber = '+' + phoneNumber;
   }
   
-  const newUser = await User.create({
+  // Check if email already exists
+  const existingUser = await UserFirebase.findByEmail(req.body.email);
+  if (existingUser) {
+    return next(new AppError('Email already registered', 409));
+  }
+  
+  // Check if phone already exists
+  const existingPhone = await UserFirebase.findByPhoneNumber(phoneNumber);
+  if (existingPhone) {
+    return next(new AppError('Phone number already registered', 409));
+  }
+  
+  // Create new user
+  const newUser = new UserFirebase({
     name: req.body.name,
     email: req.body.email,
     phoneNumber: phoneNumber,
@@ -384,6 +308,12 @@ exports.signup = catchAsync(async (req, res, next) => {
     confirmPassword: req.body.confirmPassword,
     role: req.body.role || 'user'
   });
+  
+  // Hash password
+  await newUser.hashPassword();
+  
+  // Save to Firestore
+  await newUser.save();
   
   createSendToken(newUser, 201, res);
 });
@@ -397,11 +327,10 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError('Please provide email and password', 400));
   }
   
-  // Find user and include password
-  const user = await User.findOne({ email }).select('+password');
+  // Find user
+  const user = await UserFirebase.findByEmail(email);
   
-  // Check if user exists and password is correct
-  if (!user || !(await user.correctPassword(password, user.password))) {
+  if (!user || !(await user.correctPassword(password))) {
     return next(new AppError('Incorrect email or password', 401));
   }
   
@@ -441,7 +370,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
   
   // Check if user still exists
-  const currentUser = await User.findById(decoded.id);
+  const currentUser = await UserFirebase.findById(decoded.id);
   if (!currentUser) {
     return next(new AppError('The user belonging to this token no longer exists.', 401));
   }
@@ -466,17 +395,17 @@ exports.restrictTo = (...roles) => {
   };
 };
 
-// FORGOT PASSWORD - FIXED VERSION
+// FORGOT PASSWORD
 exports.forgotPassword = catchAsync(async (req, res, next) => {
   // Get user based on email
-  const user = await User.findOne({ email: req.body.email });
+  const user = await UserFirebase.findByEmail(req.body.email);
   if (!user) {
     return next(new AppError('There is no user with that email address.', 404));
   }
   
   // Generate reset token
   const resetToken = user.createPasswordResetToken();
-  await user.save({ validateBeforeSave: false });
+  await user.save();
   
   // For development/testing, just return the token
   if (process.env.NODE_ENV === 'development' || !process.env.EMAIL_HOST) {
@@ -485,7 +414,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     res.status(200).json({
       status: 'success',
       message: 'Password reset token generated',
-      token: resetToken, // Send token in response for testing
+      token: resetToken,
       resetURL: `http://localhost:3000/reset-password/${resetToken}`,
       note: 'In production, this token would be sent via email.'
     });
@@ -494,9 +423,6 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   
   // For production: Create reset URL and send email
   const resetURL = `${req.protocol}://${req.get('host')}/api/users/reset-password/${resetToken}`;
-  
-  // Alternative: Use your frontend URL
-  // const resetURL = `http://localhost:3000/reset-password/${resetToken}`;
   
   const message = `Forgot your password? Submit a PATCH request with your new password and confirmPassword to: ${resetURL}\nIf you didn't forget your password, please ignore this email.`;
   
@@ -514,7 +440,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   } catch (err) {
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
-    await user.save({ validateBeforeSave: false });
+    await user.save();
     
     return next(new AppError('There was an error sending the email. Try again later.', 500));
   }
@@ -528,10 +454,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     .update(req.params.token)
     .digest('hex');
   
-  const user = await User.findOne({
-    passwordResetToken: hashedToken,
-    passwordResetExpires: { $gt: Date.now() }
-  });
+  const user = await UserFirebase.findByResetToken(hashedToken);
   
   if (!user) {
     return next(new AppError('Token is invalid or has expired', 400));
@@ -543,26 +466,29 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   user.passwordResetToken = undefined;
   user.passwordResetExpires = undefined;
   
-  // Save the user with new password
+  // Hash new password
+  await user.hashPassword();
   await user.save();
   
-  // Log the user in (send new token)
   createSendToken(user, 200, res);
 });
 
 // UPDATE PASSWORD
 exports.updatePassword = catchAsync(async (req, res, next) => {
   // Get user from collection
-  const user = await User.findById(req.user.id).select('+password');
+  const user = await UserFirebase.findById(req.user.id);
   
   // Check if current password is correct
-  if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
+  if (!(await user.correctPassword(req.body.passwordCurrent))) {
     return next(new AppError('Your current password is wrong.', 401));
   }
   
   // Update password
   user.password = req.body.password;
   user.confirmPassword = req.body.confirmPassword;
+  
+  // Hash new password
+  await user.hashPassword();
   await user.save();
   
   // Log user in, send JWT
