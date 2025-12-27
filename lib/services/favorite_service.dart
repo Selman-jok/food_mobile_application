@@ -11,7 +11,7 @@ class FavoriteService extends ChangeNotifier {
   String? _authToken;
 
   // Use the SAME baseUrl as your other services
-  static const String _baseUrl = 'http://10.161.164.188:5000/api';
+  static const String _baseUrl = 'http://10.161.161.40:5000/api';
   // static const String _baseUrl = 'http://10.151.209.124:5000/api';
 
   // SharedPreferences key prefix

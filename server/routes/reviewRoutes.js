@@ -5,11 +5,6 @@ const router = express.Router();
 const reviewController = require('../controllers/reviewController');
 const authMiddleware = require('../middleware/auth'); // Make sure this file exists
 
-// IMPORTANT: Make sure authMiddleware is actually a function
-// If authMiddleware.js exports like: module.exports = authMiddleware;
-// Then it's fine. If not, we need to fix it.
-
-// For now, let's check if authMiddleware exists and is a function
 let authHandler;
 try {
   authHandler = require('../middleware/auth');

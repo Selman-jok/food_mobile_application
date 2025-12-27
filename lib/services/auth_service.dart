@@ -12,7 +12,7 @@ class AuthService extends ChangeNotifier {
   bool _isAuthenticated = false;
 
   // Use your server's base URL (same as cart service)
-  static const String _baseUrl = 'http://10.161.164.188:5000/api';
+  static const String _baseUrl = 'http://10.161.161.40:5000/api';
   // static const String _baseUrl = 'http://10.151.209.124:5000/api';
 
   // SharedPreferences keys

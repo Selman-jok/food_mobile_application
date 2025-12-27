@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/review.dart';
 
 class ReviewService extends ChangeNotifier {
-  static const String _baseUrl = 'http://10.161.164.188:5000/api';
+  static const String _baseUrl = 'http://10.161.161.40:5000/api';
   // static const String _baseUrl = 'http://10.151.209.124:5000/api';
 
   String? _authToken;

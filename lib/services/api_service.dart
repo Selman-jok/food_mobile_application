@@ -7,7 +7,7 @@ class ApiService {
   // static const String baseUrl = 'http://192.168.1.100:5000/api';
 
   // For Android Emulator
-  static const String baseUrl = 'http://10.161.164.188:5000/api';
+  static const String baseUrl = 'http://10.161.161.40:5000/api';
   // static const String baseUrl = 'http://10.151.209.124:5000/api';
 
   // For iOS Simulator
